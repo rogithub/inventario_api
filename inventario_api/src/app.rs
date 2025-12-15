@@ -4,7 +4,7 @@ use color_eyre::config::{HookBuilder, Theme};
 use tokio::net::TcpListener;
 use tower_http::trace::TraceLayer;
 
-use crate::{Result, config::Config, context::AppContext, middleware::trace,};
+use crate::{Result, config::Config, context::AppContext, middlewares::trace,};
 
 pub struct App;
 
