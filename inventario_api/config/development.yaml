@@ -2,4 +2,11 @@ server:
   protocol: http
   host: 127.0.0.1
   port: 7150
-  
+log:
+  level: debug # off, trace, debug, info, warn, error
+  format: pretty # compacy, full, json, pretty
+  crates:
+    - inventario_api # name of the project
+    - axum
+    - tower-http
+    - tower

@@ -1,5 +1,8 @@
+pub mod log;
+
 use serde::Deserialize;
 use crate::Result;
+use crate::config::log::Logger;
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct ServerConfig {
@@ -21,12 +24,18 @@ impl ServerConfig {
 #[derive(Debug, Deserialize, Clone)]
 pub struct Config {
     server: ServerConfig,
+    log: Logger,
 }
 
 impl Config {
     pub fn load() -> Result<Self> {
         let env = Environment::current();
         Self::from_env(&env)
+    }
+
+    
+    pub fn log(&self) -> &Logger {
+        &self.log
     }
 
     /// Load configuration from a specific environment

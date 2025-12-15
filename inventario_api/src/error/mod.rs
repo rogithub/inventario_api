@@ -28,4 +28,13 @@ pub enum Error {
     Config(#[from] config::ConfigError),
     #[error(transparent)]
     IOError(#[from] std::io::Error),
+
+    #[error(transparent)]
+    DirectiveParseError(#[from] tracing_subscriber::filter::ParseError),
+    #[error(transparent)]
+    EnvFilter(#[from] std::env::VarError),
+    #[error(transparent)]
+    FromEnv(#[from] tracing_subscriber::filter::FromEnvError),
+    #[error(transparent)]
+    TryInit(#[from] tracing_subscriber::util::TryInitError),
 }
