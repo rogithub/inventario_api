@@ -1,4 +1,6 @@
 podman run -d --name postgres -e POSTGRES_PASSWORD=postgres -p 5432:5432 postgres:latest
+podman exec -it postgres psql -U postgres -c "CREATE DATABASE dev_inventario;"
+
 podman run -d --name redis -p 6379:6379 redis:latest
 
 
