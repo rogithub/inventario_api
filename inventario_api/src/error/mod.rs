@@ -45,6 +45,8 @@ pub enum Error {
     #[error(transparent)]
     Redis(#[from] redis::RedisError),
 
+    #[error("Error occured when signing or verifying token")]
+    TokenError,
     #[error(transparent)]
-    Jwt(#[from] jsonwebtoken::errors::Error),
+    JsonWebToken(#[from] jsonwebtoken::errors::Error),
 }
