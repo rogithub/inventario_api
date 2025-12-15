@@ -1,8 +1,19 @@
 podman run -d --name postgres -e POSTGRES_PASSWORD=postgres -p 5432:5432 postgres:latest
 podman exec -it postgres psql -U postgres -c "CREATE DATABASE dev_inventario;"
+podman exec -it postgres psql -U postgres -d dev_inventario
 
 podman run -d --name redis -p 6379:6379 redis:latest
 
+
+# sec
+openssl genrsa -out config/security/keys/access_key.pem 4096
+openssl rsa -in config/security/keys/access_key.pem -pubout -out config/security/keys/access_key_pub.pem
+
+openssl genrsa -out config/security/keys/refresh_key.pem 4096
+openssl rsa -in config/security/keys/refresh_key.pem -pubout -out config/security/keys/refresh_key_pub.pem
+
+# sqlx
+sqlix migrate run
 
 # Desde tu máquina (si tienes redis-cli instalado)
 redis-cli -h localhost -p 6379

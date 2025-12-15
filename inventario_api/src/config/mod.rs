@@ -1,8 +1,12 @@
 pub mod log;
+pub mod db;
+pub mod auth;
 
 use serde::Deserialize;
 use crate::Result;
 use crate::config::log::Logger;
+use crate::config::db::{DatabaseConfig, RedisConfig};
+use crate::config::auth::AuthConfig;
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct ServerConfig {
@@ -25,17 +29,15 @@ impl ServerConfig {
 pub struct Config {
     server: ServerConfig,
     log: Logger,
+    database: DatabaseConfig,
+    redis: RedisConfig,
+    auth: AuthConfig,
 }
 
 impl Config {
     pub fn load() -> Result<Self> {
         let env = Environment::current();
         Self::from_env(&env)
-    }
-
-    
-    pub fn log(&self) -> &Logger {
-        &self.log
     }
 
     /// Load configuration from a specific environment
@@ -59,10 +61,26 @@ impl Config {
             .build()?;
 
         settings.try_deserialize().map_err(Into::into)
+    }  
+    
+    pub fn log(&self) -> &Logger {
+        &self.log
+    }
+
+    pub fn redis(&self) -> &RedisConfig {
+        &self.redis
+    }
+
+    pub fn database(&self) -> &DatabaseConfig {
+        &self.database
     }
 
     pub fn server(&self) -> &ServerConfig {
         &self.server
+    }  
+
+    pub fn auth(&self) -> &auth::AuthConfig {
+        &self.auth
     }
 }
 
