@@ -4,7 +4,7 @@ use color_eyre::config::{HookBuilder, Theme};
 use tokio::net::TcpListener;
 use tower_http::trace::TraceLayer;
 
-use crate::{Result, config::Config, context::AppContext, middlewares::trace,};
+use crate::{Result, config::Config, context::AppContext, controllers, middlewares};
 
 pub struct App;
 
@@ -21,17 +21,17 @@ impl App {
 
         config.log().setup()?;
 
-
-        let ctx = Arc::new(AppContext::try_from(&config)?);
+        let ctx = Arc::new(AppContext::try_from(&config).await?);
 
         let router = Router::new()
-            .route("/hello", get(|| async { "Hello World!" }))
+            .route("/hello", get(|| async { "Hello from axum!" }))
+            .nest("/auth", controllers::auth::router(&ctx))
             .layer(
                 TraceLayer::new_for_http()
-                    .make_span_with(trace::make_span_with)
-                    .on_request(trace::on_request)
-                    .on_response(trace::on_response)
-                    .on_failure(trace::on_failure),
+                    .make_span_with(middlewares::make_span_with)
+                    .on_request(middlewares::on_request)
+                    .on_response(middlewares::on_response)
+                    .on_failure(middlewares::on_failure),
             );
 
 

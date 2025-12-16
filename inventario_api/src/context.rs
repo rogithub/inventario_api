@@ -40,6 +40,49 @@ impl TryFrom<&Config> for AppContext {
     }
 }
 
+impl AppContext {
+    pub async fn store_refresh_token(&self, token_details: &TokenDetails) -> Result<(), Report> {
+        let mut conn = self.redis.clone();
+        let key = format!("refresh_token:{}", token_details.token_id);
+        let value = serde_json::to_string(token_details)?;
+
+        if let Some(expires_in) = token_details.expires_in {
+            let ttl = (expires_in - chrono::Utc::now().timestamp()) as u64;
+            conn.set_ex(&key, &value, ttl).await?;
+        } else {
+            conn.set(&key, &value).await?;
+        }
+
+        Ok(())
+    }
+
+    pub async fn revoke_refresh_token(&self, token_id: Uuid) -> Result<(), Report> {
+        let mut conn = self.redis.clone();
+        let key = format!("refresh_token:{}", token_id);
+
+        conn.del(&key).await?;
+
+        Ok(())
+    }
+
+    pub async fn try_from(config: &Config) -> Result<Self, Report> {
+        let db = config.database().pool().await;
+        let redis = config.redis().multiplexed_connection().await?;
+
+        let auth = AuthContext {
+            access: config.auth().access().try_into()?,
+            refresh: config.auth().refresh().try_into()?,
+        };
+
+        Ok(Self {
+            redis,
+            db,
+            auth,
+            config: config.clone(),
+        })
+    }
+}
+
 #[derive(Clone)]
 pub struct AuthContext {
     pub access: JwtContext,
